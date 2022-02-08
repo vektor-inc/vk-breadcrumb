@@ -5,7 +5,7 @@
  * @package vektor-inc/vk-breadcrumb
  * @license GPL-2.0+
  *
- * @version 0.0.0
+ * @version 0.0.1
  */
 
 namespace VektorInc\VK_Breadcrumb;
@@ -24,10 +24,12 @@ class VkBreadcrumb {
 
 		global $wp_query;
 
+		$vk_helpers = new VK_Helpers();
+
 		// Get Post top page info
 		// get_post_type() だとtaxonomyページで該当の投稿がない時に投稿タイプを取得できないため VK_Helpers::get_post_type_info() を使用.
-		$post_type_info = VK_Helpers::get_post_type_info();
-		$post_top_info  = VK_Helpers::get_post_top_info();
+		$post_type_info = $vk_helpers->get_post_type_info();
+		$post_top_info  = $vk_helpers->get_post_top_info();
 		$post_type      = $post_type_info['slug'];
 		$show_on_front  = get_option( 'show_on_front' );
 		$page_on_front  = get_option( 'page_on_front' );
