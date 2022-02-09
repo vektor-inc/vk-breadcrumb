@@ -5,7 +5,7 @@
  * @package vektor-inc/vk-breadcrumb
  * @license GPL-2.0+
  *
- * @version 0.0.3
+ * @version 0.0.4
  */
 
 namespace VektorInc\VK_Breadcrumb;
@@ -351,31 +351,43 @@ class VkBreadcrumb {
 
 	/**
 	 * Print Bread Crumb
+	 *
+	 * @param array $options
 	 */
-	public static function the_breadcrumb() {
+	public static function the_breadcrumb( $options = array() ) {
 
-			$breadcrumb_array = self::get_array();
+		if ( ! $options ) {
+			$options = array(
+				'id_outer'        => 'breadcrumb',
+				'class_outer'     => 'breadcrumb',
+				'class_inner'     => 'container',
+				'class_list'      => 'breadcrumb-list',
+				'class_list_item' => 'breadcrumb-list__item',
+			);
+		}
 
-			global $breadcrumb_options;
+		$options = apply_filters( 'breadcrumb_html_options', $options );
 
-			// Microdata
-			// Refference http://schema.org/BreadcrumbList .
-			/*-------------------------------------------*/
-			$microdata_li        = ' itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"';
-			$microdata_li_a      = ' itemprop="item"';
-			$microdata_li_a_span = ' itemprop="name"';
+		$breadcrumb_array = self::get_array();
 
-			$breadcrumb_html  = '<!-- [ #' . esc_attr( $breadcrumb_options['class_outer'] ) . ' ] -->';
-			$breadcrumb_html .= '<div id="' . esc_attr( $breadcrumb_options['class_outer'] ) . '" class="' . esc_attr( $breadcrumb_options['class_outer'] ) . '">';
-			$breadcrumb_html .= '<div class="' . esc_attr( $breadcrumb_options['class_inner'] ) . '">';
-			$breadcrumb_html .= '<ol class="' . esc_attr( $breadcrumb_options['class_list'] ) . '" itemscope itemtype="https://schema.org/BreadcrumbList">';
+		// Microdata
+		// Refference http://schema.org/BreadcrumbList .
+		/*-------------------------------------------*/
+		$microdata_li        = ' itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"';
+		$microdata_li_a      = ' itemprop="item"';
+		$microdata_li_a_span = ' itemprop="name"';
+
+		$breadcrumb_html  = '<!-- [ #' . esc_attr( $options['class_outer'] ) . ' ] -->';
+		$breadcrumb_html .= '<div id="' . esc_attr( $options['class_outer'] ) . '" class="' . esc_attr( $options['class_outer'] ) . '">';
+		$breadcrumb_html .= '<div class="' . esc_attr( $options['class_inner'] ) . '">';
+		$breadcrumb_html .= '<ol class="' . esc_attr( $options['class_list'] ) . '" itemscope itemtype="https://schema.org/BreadcrumbList">';
 
 		$position = 0;
 		foreach ( $breadcrumb_array as $key => $value ) {
 
 			$id = ( $value['id'] ) ? ' id="' . esc_attr( $value['id'] ) . '"' : '';
 
-			$class = ' class="' . esc_attr( $breadcrumb_options['class_list_item'] );
+			$class = ' class="' . esc_attr( $options['class_list_item'] );
 			if ( ! empty( $value['class'] ) ) {
 				$class .= ' ' . esc_attr( $value['class'] );
 			}
@@ -414,7 +426,7 @@ class VkBreadcrumb {
 			$breadcrumb_html .= '</ol>';
 			$breadcrumb_html .= '</div>
 			</div>
-			<!-- [ /#' . esc_attr( $breadcrumb_options['class_outer'] ) . ' ] -->
+			<!-- [ /#' . esc_attr( $options['class_outer'] ) . ' ] -->
 			';
 			$breadcrumb_html  = apply_filters( 'vk_breadcrumb_html', $breadcrumb_html );
 
