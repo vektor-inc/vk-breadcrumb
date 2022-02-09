@@ -5,7 +5,7 @@
  * @package vektor-inc/vk-breadcrumb
  * @license GPL-2.0+
  *
- * @version 0.0.2
+ * @version 0.0.3
  */
 
 namespace VektorInc\VK_Breadcrumb;
@@ -469,4 +469,38 @@ class VkBreadcrumb {
 
 	}
 
+	/**
+	 * Scheme array
+	 *
+	 * @return array $json_array
+	 */
+	public static function get_scheme_json_array() {
+		$array                  = self::get_array();
+		$json_array             = array();
+		$json_array['@context'] = 'https://schema.org';
+		$json_array['@type']    = 'BreadcrumbList';
+		$count                  = 1;
+		foreach ( $array as $key => $value ) {
+			$json_array['itemListElement'][ $key ]['@type']    = 'ListItem';
+			$json_array['itemListElement'][ $key ]['position'] = $count;
+			$json_array['itemListElement'][ $key ]['name']     = esc_html( $value['name'] );
+			if ( ! empty( $value['url'] ) ) {
+				$json_array['itemListElement'][ $key ]['item'] = esc_html( esc_url( $value['url'] ) );
+			}
+			$count++;
+		}
+		return $json_array;
+	}
+
+	/**
+	 * Print scheme script
+	 *
+	 * @return void
+	 */
+	public static function the_scheme_script() {
+		$json_array = self::get_scheme_json_array();
+		echo '<script type="application/ld+json">' . "\n";
+		echo wp_json_encode( $json_array, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT );
+		echo '</script>';
+	}
 }
