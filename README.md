@@ -1,5 +1,5 @@
 # VK Bread Crumb
 
 ```
-composer require vektor-inc/vk-breadcrumb
+composer require --dev vektor-inc/vk-breadcrumb
 ```
