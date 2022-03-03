@@ -5,7 +5,7 @@
  * @package vektor-inc/vk-breadcrumb
  * @license GPL-2.0+
  *
- * @version 0.0.4
+ * @version 0.1.0
  */
 
 namespace VektorInc\VK_Breadcrumb;
@@ -378,7 +378,7 @@ class VkBreadcrumb {
 		$microdata_li_a_span = ' itemprop="name"';
 
 		$breadcrumb_html  = '<!-- [ #' . esc_attr( $options['class_outer'] ) . ' ] -->';
-		$breadcrumb_html .= '<div id="' . esc_attr( $options['class_outer'] ) . '" class="' . esc_attr( $options['class_outer'] ) . '">';
+		$breadcrumb_html .= '<div id="' . esc_attr( $options['id_outer'] ) . '" class="' . esc_attr( $options['class_outer'] ) . '">';
 		$breadcrumb_html .= '<div class="' . esc_attr( $options['class_inner'] ) . '">';
 		$breadcrumb_html .= '<ol class="' . esc_attr( $options['class_list'] ) . '" itemscope itemtype="https://schema.org/BreadcrumbList">';
 
