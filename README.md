@@ -25,4 +25,8 @@ $vk_breadcrumb->the_breadcrumb( $breadcrumb_options );
 
 ## Change log
 
-[ 0.0.5 ] id が class_outer になってしまっていたので修正
+0.1.0
+[ Spacification Change ] Add get_breadcrumb() method
+
+0.0.5 
+[ Bug fix ] id が class_outer になってしまっていたので修正
