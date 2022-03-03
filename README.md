@@ -22,3 +22,7 @@ $breadcrumb_options = array(
 );
 $vk_breadcrumb->the_breadcrumb( $breadcrumb_options );
 ```
+
+## Change log
+
+[ 0.0.5 ] id が class_outer になってしまっていたので修正
