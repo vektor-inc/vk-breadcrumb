@@ -437,7 +437,7 @@ class VkBreadcrumb {
 	/**
 	 * Print Bread Crumb
 	 */
-	public static function the_breadcrumb()	{
+	public static function the_breadcrumb() {
 		$allowed_html = array(
 			'div'  => array(
 				'id'        => array(),
