@@ -477,7 +477,7 @@ class VkBreadcrumb {
 				'ruby' => array(),
 				'rt'   => array(),
 			);
-			echo wp_kses( $breadcrumb_html, $allowed_html );
+		return wp_kses( $breadcrumb_html, $allowed_html );
 
 	}
 
