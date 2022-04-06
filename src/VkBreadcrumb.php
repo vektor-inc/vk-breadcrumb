@@ -162,7 +162,7 @@ class VkBreadcrumb {
 
 		if ( is_date() ) {
 			$breadcrumb_array[] = array(
-				'name'  => get_the_archive_title(),
+				'name'  => date( 'Y' ),
 				'id'    => '',
 				'url'   => '',
 				'class' => '',
