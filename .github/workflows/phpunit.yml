@@ -1,0 +1,16 @@
+name: phpunit
+
+on: pull_request
+
+jobs:
+  test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    # PHPUnitテスト実行
+    - name: Run PHPUnit test.
+      run: |
+        npm run phpunit
