@@ -358,11 +358,12 @@ class VkBreadcrumb {
 
 		if ( ! $options ) {
 			$options = array(
-				'id_outer'        => 'breadcrumb',
-				'class_outer'     => 'breadcrumb',
-				'class_inner'     => 'container',
-				'class_list'      => 'breadcrumb-list',
-				'class_list_item' => 'breadcrumb-list__item',
+				'id_outer'           => 'breadcrumb',
+				'class_outer'        => 'breadcrumb',
+				'wrapper_attributes' => '',
+				'class_inner'        => 'container',
+				'class_list'         => 'breadcrumb-list',
+				'class_list_item'    => 'breadcrumb-list__item',
 			);
 		}
 
@@ -378,7 +379,11 @@ class VkBreadcrumb {
 		$microdata_li_a_span = ' itemprop="name"';
 
 		$breadcrumb_html  = '<!-- [ #' . esc_attr( $options['class_outer'] ) . ' ] -->';
-		$breadcrumb_html .= '<div id="' . esc_attr( $options['id_outer'] ) . '" class="' . esc_attr( $options['class_outer'] ) . '">';
+		if ( $options['wrapper_attributes'] ) {
+			$breadcrumb_html .= '<div id="' . esc_attr( $options['id_outer'] ) . '" ' . $options['wrapper_attributes'] . '>';
+		} else {
+			$breadcrumb_html .= '<div id="' . esc_attr( $options['id_outer'] ) . '" class="' . $options['class_outer'] . '">';
+		}
 		$breadcrumb_html .= '<div class="' . esc_attr( $options['class_inner'] ) . '">';
 		$breadcrumb_html .= '<ol class="' . esc_attr( $options['class_list'] ) . '" itemscope itemtype="https://schema.org/BreadcrumbList">';
 
