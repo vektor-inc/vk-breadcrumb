@@ -429,10 +429,9 @@ class VkBreadcrumb {
 		}
 
 			$breadcrumb_html .= '</ol>';
-			$breadcrumb_html .= '</div>
-			</div>
-			<!-- [ /#' . esc_attr( $options['class_outer'] ) . ' ] -->
-			';
+			$breadcrumb_html .= '</div>';
+			$breadcrumb_html .= '</div>';
+			$breadcrumb_html .= '<!-- [ /#' . esc_attr( $options['class_outer'] ) . ' ] -->';
 			$breadcrumb_html  = apply_filters( 'vk_breadcrumb_html', $breadcrumb_html );
 			return $breadcrumb_html;
 
