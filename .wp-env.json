@@ -1,9 +1,0 @@
-{
-  "core": null,
-  "mappings": {
-    "wp-content/plugins/vk-breadcrumb": "./"
-  },
-  "config": {
-    "WP_DEBUG": true
-  }
-}
