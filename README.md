@@ -25,7 +25,6 @@ $vk_breadcrumb->the_breadcrumb( $breadcrumb_options );
 
 ## Change log
 
-[ Spacification Change ] Changed the method of getting the date archive title from get_the_archive_title to date( 'Y' ).
 
 0.1.0
 [ Spacification Change ] Add get_breadcrumb() method
