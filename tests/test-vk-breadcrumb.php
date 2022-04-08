@@ -499,7 +499,7 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 						'icon'  => '',
 					),
 					array(
-						'name'  => date( 'Y' ),
+						'name'  => get_the_archive_title(),
 						'id'    => '',
 						'url'   => '',
 						'class' => '',
@@ -524,7 +524,7 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 						'icon'  => 'fas fa-fw fa-home',
 					),
 					array(
-						'name'  => date( 'Y' ),
+						'name'  => get_the_archive_title(),
 						'id'    => '',
 						'url'   => '',
 						'class' => '',
@@ -604,7 +604,7 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 						'icon'  => '',
 					),
 					array(
-						'name'  => date( 'Y' ),
+						'name'  => get_the_archive_title(),
 						'id'    => '',
 						'url'   => '',
 						'class' => '',
@@ -662,16 +662,16 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 			// $return = $vk_breadcrumb->get_array();
 			$return = VkBreadcrumb::get_array();
 
-			// global $wp_query;
-			// print '<pre style="text-align:left">';print_r($wp_query->query);print '</pre>';
+			global $wp_query;
+			print '<pre style="text-align:left">';print_r($wp_query->query);print '</pre>';
 
-			// print PHP_EOL;
-			// print $value['target_url']. PHP_EOL;
-			// print 'return------------------------------------' . PHP_EOL;
-			// var_dump( $return ) . PHP_EOL;
-			// print 'correct------------------------------------' . PHP_EOL;
-			// var_dump( $value['correct'] ) . PHP_EOL;
-			// print '------------------------------------' . PHP_EOL;
+			print PHP_EOL;
+			print $value['target_url']. PHP_EOL;
+			print 'return------------------------------------' . PHP_EOL;
+			var_dump( $return ) . PHP_EOL;
+			print 'correct------------------------------------' . PHP_EOL;
+			var_dump( $value['correct'] ) . PHP_EOL;
+			print '------------------------------------' . PHP_EOL;
 
 			$this->assertEquals( $value['correct'], $return );
 
