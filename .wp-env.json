@@ -1,8 +1,8 @@
 {
   "core": null,
-  "mappings": {
-    "wp-content/plugins/vk-breadcrumb": "./"
-  },
+  "plugins": [
+		"."
+	],
   "config": {
     "WP_DEBUG": true
   }
