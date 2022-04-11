@@ -25,7 +25,6 @@ $vk_breadcrumb->the_breadcrumb( $breadcrumb_options );
 
 ## Change log
 
-
 0.1.0
 [ Spacification Change ] Add get_breadcrumb() method
 
