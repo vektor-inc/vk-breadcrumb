@@ -499,7 +499,7 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 						'icon'  => '',
 					),
 					array(
-						'name'  => get_the_archive_title(),
+						'name'  => 'Year: <span>' . date( 'Y' ) . '</span>',
 						'id'    => '',
 						'url'   => '',
 						'class' => '',
@@ -524,7 +524,7 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 						'icon'  => 'fas fa-fw fa-home',
 					),
 					array(
-						'name'  => get_the_archive_title(),
+						'name'  => 'Year: <span>' . date( 'Y' ) . '</span>',
 						'id'    => '',
 						'url'   => '',
 						'class' => '',
@@ -604,7 +604,7 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 						'icon'  => '',
 					),
 					array(
-						'name'  => get_the_archive_title(),
+						'name'  => 'Year: <span>' . date( 'Y' ) . '</span>',
 						'id'    => '',
 						'url'   => '',
 						'class' => '',
