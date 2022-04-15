@@ -25,6 +25,8 @@ $vk_breadcrumb->the_breadcrumb( $breadcrumb_options );
 
 ## Change log
 
+[ Specification Change ] Add option to wrapper_attributes method for Gutenberg.
+
 0.1.0
 [ Spacification Change ] Add get_breadcrumb() method
 
