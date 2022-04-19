@@ -380,7 +380,7 @@ class VkBreadcrumb {
 
 		$breadcrumb_html = '<!-- [ #' . esc_attr( $options['class_outer'] ) . ' ] -->';
 		if ( ! empty( $options['wrapper_attributes'] ) ) {
-			$breadcrumb_html .= '<div id="' . esc_attr( $options['id_outer'] ) . '" ' . $options['wrapper_attributes'] . '>';
+			$breadcrumb_html .= '<div id="' . esc_attr( $options['id_outer'] ) . '"' . $options['wrapper_attributes'] . '>';
 		} else {
 			$breadcrumb_html .= '<div id="' . esc_attr( $options['id_outer'] ) . '" class="' . $options['class_outer'] . '">';
 		}
