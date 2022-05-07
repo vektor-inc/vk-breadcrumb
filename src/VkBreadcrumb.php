@@ -105,7 +105,7 @@ class VkBreadcrumb {
 				'icon'  => '',
 			);
 
-		} elseif ( is_page() ) {
+		} elseif ( is_page() && ! is_front_page() ) {
 			$post = $wp_query->get_queried_object();
 			// 第一階層.
 			if ( 0 === $post->post_parent ) {
