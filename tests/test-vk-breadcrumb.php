@@ -189,13 +189,18 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 				),
 			),
 
-			// トップページ
-			// HOME.
+			// トップページに固定ページ
+			// トップページに指定した固定ページ名
 			array(
 				'target_url' => home_url(),
+				'options'    => array(
+					'page_on_front'  => $front_page_id,
+					'show_on_front'  => 'page',
+					'page_for_posts' => $home_page_id,
+				),
 				'correct'    => array(
 					array(
-						'name'  => __( 'HOME', 'lightning' ),
+						'name'  => 'front_page',
 						'id'    => '',
 						'url'   => home_url(),
 						'class' => 'breadcrumb-list__item--home',
@@ -203,7 +208,6 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 					),
 				),
 			),
-
 			// 固定ページ
 			// HOME > 固定ページ名.
 			array(
@@ -227,7 +231,7 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 			),
 
 			// トップページに固定ページ / 投稿トップに特定の固定ページ指定 / 固定ページ
-			// トップに指定した固定ページ名 > 固定ページ名
+			// トップページに固定ページ > 固定ページ名
 			array(
 				'options'    => array(
 					'page_on_front'  => $front_page_id,
