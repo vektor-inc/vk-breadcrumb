@@ -189,8 +189,23 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 				),
 			),
 
+			// トップページ
+			// HOME.
+			array(
+				'target_url' => home_url(),
+				'correct'    => array(
+					array(
+						'name'  => __( 'HOME', 'lightning' ),
+						'id'    => '',
+						'url'   => home_url(),
+						'class' => 'breadcrumb-list__item--home',
+						'icon'  => 'fas fa-fw fa-home',
+					),
+				),
+			),
+
 			// 固定ページ
-			// HOME > 固定ページ名
+			// HOME > 固定ページ名.
 			array(
 				'target_url' => get_permalink( $parent_page_id ),
 				'correct'    => array(
@@ -663,10 +678,12 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 			$return = VkBreadcrumb::get_array();
 
 			global $wp_query;
-			print '<pre style="text-align:left">';print_r($wp_query->query);print '</pre>';
+			print '<pre style="text-align:left">';
+			print_r( $wp_query->query );
+			print '</pre>';
 
 			print PHP_EOL;
-			print $value['target_url']. PHP_EOL;
+			print $value['target_url'] . PHP_EOL;
 			print 'return------------------------------------' . PHP_EOL;
 			var_dump( $return ) . PHP_EOL;
 			print 'correct------------------------------------' . PHP_EOL;
