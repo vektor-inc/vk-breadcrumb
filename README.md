@@ -23,6 +23,18 @@ $breadcrumb_options = array(
 $vk_breadcrumb->the_breadcrumb( $breadcrumb_options );
 ```
 
+---
+## test
+
+```
+npm install
+composer install
+wp-env start
+npm run phpunit
+```
+
+---
+
 ## Change log
 
 0.2.3
