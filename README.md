@@ -37,6 +37,9 @@ npm run phpunit
 
 ## Change log
 
+0.2.4
+[ Bug fix ] Fix filter search behabier
+
 0.2.3
 [ Bug fix ] Fix front page behabier
 
