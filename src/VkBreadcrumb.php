@@ -5,7 +5,7 @@
  * @package vektor-inc/vk-breadcrumb
  * @license GPL-2.0+
  *
- * @version 0.2.5
+ * @version 0.2.7
  */
 
 namespace VektorInc\VK_Breadcrumb;
