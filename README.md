@@ -37,6 +37,9 @@ npm run phpunit
 
 ## Change log
 
+0.2.7
+[ Other ] Update VK Helpers 0.2.0 -> 0.2.1
+
 0.2.6
 [ Other ] Update VK Helpers 0.0.3 -> 0.2.0
 

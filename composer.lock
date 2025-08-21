@@ -4,26 +4,26 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c8a9e81b75aeae9b984b78ce5e61348f",
+    "content-hash": "6b9649decfe29a27995c469737e1c4b5",
     "packages": [
         {
             "name": "vektor-inc/vk-helpers",
-            "version": "0.2.0",
+            "version": "0.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/vektor-inc/vk-helpers.git",
-                "reference": "0abf2b77399f3df966c60e5fd7b8f3e10dacb03a"
+                "reference": "991e8da04652f999ef95eb90e34bacd4ec5dbf52"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/vektor-inc/vk-helpers/zipball/0abf2b77399f3df966c60e5fd7b8f3e10dacb03a",
-                "reference": "0abf2b77399f3df966c60e5fd7b8f3e10dacb03a",
+                "url": "https://api.github.com/repos/vektor-inc/vk-helpers/zipball/991e8da04652f999ef95eb90e34bacd4ec5dbf52",
+                "reference": "991e8da04652f999ef95eb90e34bacd4ec5dbf52",
                 "shasum": ""
             },
             "require-dev": {
                 "doctrine/instantiator": "1.5.0",
                 "wp-phpunit/wp-phpunit": "^5.4",
-                "yoast/phpunit-polyfills": "^1.0"
+                "yoast/phpunit-polyfills": "^1.1.0"
             },
             "type": "library",
             "autoload": {
@@ -44,9 +44,9 @@
             "description": "WordPress Helpers Class",
             "support": {
                 "issues": "https://github.com/vektor-inc/vk-helpers/issues",
-                "source": "https://github.com/vektor-inc/vk-helpers/tree/0.2.0"
+                "source": "https://github.com/vektor-inc/vk-helpers/tree/0.2.1"
             },
-            "time": "2023-06-28T18:59:04+00:00"
+            "time": "2025-08-21T01:08:34+00:00"
         }
     ],
     "packages-dev": [
@@ -1892,10 +1892,10 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": [],
-    "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "platform": {},
+    "platform-dev": {},
+    "plugin-api-version": "2.6.0"
 }
