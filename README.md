@@ -37,6 +37,9 @@ npm run phpunit
 
 ## Change log
 
+0.2.8
+[ Other ] VkHelpers を static メソッドとして呼び出すように変更
+
 0.2.7
 [ Other ] Update VK Helpers 0.2.0 -> 0.2.1
 
