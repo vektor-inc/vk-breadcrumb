@@ -47,7 +47,7 @@ class VkBreadcrumb {
 				'id'    => '',
 				'url'   => home_url(),
 				'class' => 'breadcrumb-list__item--home',
-				'icon'  => 'fas fa-fw fa-home',
+				'icon'  => 'fa-solid fa-fw fa-house',
 			),
 		);
 

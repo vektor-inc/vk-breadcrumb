@@ -136,7 +136,7 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 						'id'    => '',
 						'url'   => home_url(),
 						'class' => 'breadcrumb-list__item--home',
-						'icon'  => 'fas fa-fw fa-home',
+						'icon'  => 'fa-solid fa-fw fa-house',
 					),
 					array(
 						'name'  => __( 'Not found', 'lightning' ),
@@ -156,7 +156,7 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 						'id'    => '',
 						'url'   => home_url(),
 						'class' => 'breadcrumb-list__item--home',
-						'icon'  => 'fas fa-fw fa-home',
+						'icon'  => 'fa-solid fa-fw fa-house',
 					),
 					array(
 						'name'  => __( 'Search Results', 'lightning' ),
@@ -177,7 +177,7 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 						'id'    => '',
 						'url'   => home_url(),
 						'class' => 'breadcrumb-list__item--home',
-						'icon'  => 'fas fa-fw fa-home',
+						'icon'  => 'fa-solid fa-fw fa-house',
 					),
 					array(
 						'name'  => sprintf( __( 'Search Results for : %s', 'lightning' ), 'aaa' ),
@@ -204,7 +204,7 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 						'id'    => '',
 						'url'   => home_url(),
 						'class' => 'breadcrumb-list__item--home',
-						'icon'  => 'fas fa-fw fa-home',
+						'icon'  => 'fa-solid fa-fw fa-house',
 					),
 				),
 			),
@@ -218,7 +218,7 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 						'id'    => '',
 						'url'   => home_url(),
 						'class' => 'breadcrumb-list__item--home',
-						'icon'  => 'fas fa-fw fa-home',
+						'icon'  => 'fa-solid fa-fw fa-house',
 					),
 					array(
 						'name'  => 'parent_page',
@@ -245,7 +245,7 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 						'id'    => '',
 						'url'   => home_url(),
 						'class' => 'breadcrumb-list__item--home',
-						'icon'  => 'fas fa-fw fa-home',
+						'icon'  => 'fa-solid fa-fw fa-house',
 					),
 					array(
 						'name'  => 'parent_page',
@@ -272,7 +272,7 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 						'id'    => '',
 						'url'   => home_url(),
 						'class' => 'breadcrumb-list__item--home',
-						'icon'  => 'fas fa-fw fa-home',
+						'icon'  => 'fa-solid fa-fw fa-house',
 					),
 					array(
 						'name'  => 'parent_page',
@@ -301,7 +301,7 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 						'id'    => '',
 						'url'   => home_url(),
 						'class' => 'breadcrumb-list__item--home',
-						'icon'  => 'fas fa-fw fa-home',
+						'icon'  => 'fa-solid fa-fw fa-house',
 					),
 					array(
 						'name'  => 'parent_page',
@@ -333,7 +333,7 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 						'id'    => '',
 						'url'   => home_url(),
 						'class' => 'breadcrumb-list__item--home',
-						'icon'  => 'fas fa-fw fa-home',
+						'icon'  => 'fa-solid fa-fw fa-house',
 					),
 					array(
 						'name'  => 'parent_category',
@@ -365,7 +365,7 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 						'id'    => '',
 						'url'   => home_url(),
 						'class' => 'breadcrumb-list__item--home',
-						'icon'  => 'fas fa-fw fa-home',
+						'icon'  => 'fa-solid fa-fw fa-house',
 					),
 					array(
 						'name'  => 'parent_category',
@@ -406,7 +406,7 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 						'id'    => '',
 						'url'   => home_url(),
 						'class' => 'breadcrumb-list__item--home',
-						'icon'  => 'fas fa-fw fa-home',
+						'icon'  => 'fa-solid fa-fw fa-house',
 					),
 					array(
 						'name'  => 'post_top',
@@ -433,7 +433,7 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 						'id'    => '',
 						'url'   => home_url(),
 						'class' => 'breadcrumb-list__item--home',
-						'icon'  => 'fas fa-fw fa-home',
+						'icon'  => 'fa-solid fa-fw fa-house',
 					),
 					array(
 						'name'  => 'post_top',
@@ -474,7 +474,7 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 						'id'    => '',
 						'url'   => home_url(),
 						'class' => 'breadcrumb-list__item--home',
-						'icon'  => 'fas fa-fw fa-home',
+						'icon'  => 'fa-solid fa-fw fa-house',
 					),
 					array(
 						'name'  => 'post_top',
@@ -508,7 +508,7 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 						'id'    => '',
 						'url'   => home_url(),
 						'class' => 'breadcrumb-list__item--home',
-						'icon'  => 'fas fa-fw fa-home',
+						'icon'  => 'fa-solid fa-fw fa-house',
 					),
 					array(
 						'name'  => 'post_top',
@@ -540,7 +540,7 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 						'id'    => '',
 						'url'   => home_url(),
 						'class' => 'breadcrumb-list__item--home',
-						'icon'  => 'fas fa-fw fa-home',
+						'icon'  => 'fa-solid fa-fw fa-house',
 					),
 					array(
 						'name'  => 'Year: <span>' . date( 'Y' ) . '</span>',
@@ -562,7 +562,7 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 						'id'    => '',
 						'url'   => home_url(),
 						'class' => 'breadcrumb-list__item--home',
-						'icon'  => 'fas fa-fw fa-home',
+						'icon'  => 'fa-solid fa-fw fa-house',
 					),
 					array(
 						'name'  => 'Event',
@@ -584,7 +584,7 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 						'id'    => '',
 						'url'   => home_url(),
 						'class' => 'breadcrumb-list__item--home',
-						'icon'  => 'fas fa-fw fa-home',
+						'icon'  => 'fa-solid fa-fw fa-house',
 					),
 					array(
 						'name'  => 'Event',
@@ -613,7 +613,7 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 						'id'    => '',
 						'url'   => home_url(),
 						'class' => 'breadcrumb-list__item--home',
-						'icon'  => 'fas fa-fw fa-home',
+						'icon'  => 'fa-solid fa-fw fa-house',
 					),
 					array(
 						'name'  => 'Event',
@@ -642,7 +642,7 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 						'id'    => '',
 						'url'   => home_url(),
 						'class' => 'breadcrumb-list__item--home',
-						'icon'  => 'fas fa-fw fa-home',
+						'icon'  => 'fa-solid fa-fw fa-house',
 					),
 					array(
 						'name'  => 'Event',
@@ -678,7 +678,7 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 						'id'    => '',
 						'url'   => home_url(),
 						'class' => 'breadcrumb-list__item--home',
-						'icon'  => 'fas fa-fw fa-home',
+						'icon'  => 'fa-solid fa-fw fa-house',
 					),
 					array(
 						'name'  => 'Search Results for : test',
