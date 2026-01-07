@@ -37,6 +37,8 @@ npm run phpunit
 
 ## Change log
 
+[ Other ] アイコンを Font Awesome 7 に対応
+
 0.2.8
 [ Other ] VkHelpers を static メソッドとして呼び出すように変更
 
