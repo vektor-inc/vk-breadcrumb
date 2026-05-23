@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "05f051fc3ea9d48e46a20ba9793b8982",
+    "content-hash": "9c710b654e7f416de5daab86d7cb187e",
     "packages": [
         {
             "name": "vektor-inc/vk-helpers",
-            "version": "0.2.1",
+            "version": "0.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/vektor-inc/vk-helpers.git",
-                "reference": "991e8da04652f999ef95eb90e34bacd4ec5dbf52"
+                "reference": "f1b327a06a1f543b4b4c6694501b8da7c1f0326b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/vektor-inc/vk-helpers/zipball/991e8da04652f999ef95eb90e34bacd4ec5dbf52",
-                "reference": "991e8da04652f999ef95eb90e34bacd4ec5dbf52",
+                "url": "https://api.github.com/repos/vektor-inc/vk-helpers/zipball/f1b327a06a1f543b4b4c6694501b8da7c1f0326b",
+                "reference": "f1b327a06a1f543b4b4c6694501b8da7c1f0326b",
                 "shasum": ""
             },
             "require-dev": {
@@ -27,6 +27,10 @@
             },
             "type": "library",
             "autoload": {
+                "files": [
+                    "src/VK_Custom_Html_Control.php",
+                    "src/VK_Custom_Text_Control.php"
+                ],
                 "psr-4": {
                     "VektorInc\\VK_Helpers\\": "src/"
                 }
@@ -44,9 +48,9 @@
             "description": "WordPress Helpers Class",
             "support": {
                 "issues": "https://github.com/vektor-inc/vk-helpers/issues",
-                "source": "https://github.com/vektor-inc/vk-helpers/tree/0.2.1"
+                "source": "https://github.com/vektor-inc/vk-helpers/tree/0.3.0"
             },
-            "time": "2025-08-21T01:08:34+00:00"
+            "time": "2026-05-23T08:52:45+00:00"
         }
     ],
     "packages-dev": [

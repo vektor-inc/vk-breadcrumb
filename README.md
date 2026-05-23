@@ -38,6 +38,7 @@ npm run phpunit
 ## Change log
 
 [ Other ] アイコンを Font Awesome 7 に対応
+[ 開発環境 ] vk-helpers の require を ^0.2.1 || ^0.3.0 に緩和
 
 0.2.8
 [ Other ] VkHelpers を static メソッドとして呼び出すように変更
