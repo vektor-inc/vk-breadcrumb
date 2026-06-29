@@ -737,4 +737,140 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 		update_option( 'page_on_front', $before_page_on_front );
 		update_option( 'show_on_front', $before_show_on_front );
 	}
+
+	/**
+	 * get_breadcrumb() の HTML 出力に <nav> ランドマークと aria-current が含まれるか検証する。
+	 */
+	function test_get_breadcrumb() {
+
+		// テスト用の固定ページを作成（親・子の2階層）
+		$parent_page_id = wp_insert_post( array(
+			'post_title'   => 'a11y-parent-page',
+			'post_type'    => 'page',
+			'post_status'  => 'publish',
+			'post_content' => 'content',
+		) );
+
+		$child_page_id = wp_insert_post( array(
+			'post_title'   => 'a11y-child-page',
+			'post_type'    => 'page',
+			'post_status'  => 'publish',
+			'post_content' => 'content',
+			'post_parent'  => $parent_page_id,
+		) );
+
+		$test_cases = array(
+			array(
+				'test_condition_name' => '子固定ページ表示時 => <nav> と aria-label が出力される',
+				'target_url'          => get_permalink( $child_page_id ),
+				'expected_contains'   => array(
+					'<nav ',
+					'aria-label=',
+				),
+				'expected_not_contains' => array(),
+			),
+			array(
+				'test_condition_name' => '子固定ページ表示時 => 最後の要素（現在ページ）に aria-current="page" が付く',
+				'target_url'          => get_permalink( $child_page_id ),
+				'expected_contains'   => array(
+					'aria-current="page"',
+				),
+				'expected_not_contains' => array(),
+			),
+			array(
+				'test_condition_name' => '親固定ページ（リンクなし末端）でも aria-current="page" が付く',
+				'target_url'          => get_permalink( $parent_page_id ),
+				'expected_contains'   => array(
+					'aria-current="page"',
+				),
+				'expected_not_contains' => array(),
+			),
+			array(
+				'test_condition_name' => 'トップページ（HOME1項目のみ）でも <nav> は出力される',
+				'target_url'          => home_url(),
+				'expected_contains'   => array(
+					'<nav ',
+				),
+				'expected_not_contains' => array(),
+			),
+		);
+
+		foreach ( $test_cases as $case ) {
+			$this->go_to( $case['target_url'] );
+			$html = VkBreadcrumb::get_breadcrumb();
+
+			foreach ( $case['expected_contains'] as $needle ) {
+				$this->assertStringContainsString( $needle, $html, $case['test_condition_name'] . ' / 期待文字列: ' . $needle );
+			}
+			foreach ( $case['expected_not_contains'] as $needle ) {
+				$this->assertStringNotContainsString( $needle, $html, $case['test_condition_name'] . ' / 含まれてはいけない文字列: ' . $needle );
+			}
+		}
+
+		// テストデータを削除
+		wp_delete_post( $child_page_id, true );
+		wp_delete_post( $parent_page_id, true );
+	}
+
+	/**
+	 * the_breadcrumb() が wp_kses 通過後も <nav> と aria-current を出力するか検証する。
+	 *
+	 * wp_kses の許可リストに nav / aria-label / aria-current が追加されていなければ
+	 * これらの属性・タグが剥がされてしまう。
+	 */
+	function test_the_breadcrumb() {
+
+		// テスト用の固定ページを2つ作成
+		$parent_page_id = wp_insert_post( array(
+			'post_title'   => 'kses-parent-page',
+			'post_type'    => 'page',
+			'post_status'  => 'publish',
+			'post_content' => 'content',
+		) );
+
+		$child_page_id = wp_insert_post( array(
+			'post_title'   => 'kses-child-page',
+			'post_type'    => 'page',
+			'post_status'  => 'publish',
+			'post_content' => 'content',
+			'post_parent'  => $parent_page_id,
+		) );
+
+		$test_cases = array(
+			array(
+				'test_condition_name' => 'the_breadcrumb() は wp_kses 後も <nav aria-label を出力する',
+				'target_url'          => get_permalink( $child_page_id ),
+				'expected_contains'   => array(
+					'<nav ',
+					'aria-label=',
+					'aria-current="page"',
+				),
+			),
+			array(
+				'test_condition_name' => '境界値: トップページのみのパンくずでも <nav> が出力される',
+				'target_url'          => home_url(),
+				'expected_contains'   => array(
+					'<nav ',
+					'</nav>',
+				),
+			),
+		);
+
+		foreach ( $test_cases as $case ) {
+			$this->go_to( $case['target_url'] );
+
+			// the_breadcrumb() は echo するため ob_start() でキャプチャする
+			ob_start();
+			VkBreadcrumb::the_breadcrumb();
+			$html = ob_get_clean();
+
+			foreach ( $case['expected_contains'] as $needle ) {
+				$this->assertStringContainsString( $needle, $html, $case['test_condition_name'] . ' / 期待文字列: ' . $needle );
+			}
+		}
+
+		// テストデータを削除
+		wp_delete_post( $child_page_id, true );
+		wp_delete_post( $parent_page_id, true );
+	}
 }

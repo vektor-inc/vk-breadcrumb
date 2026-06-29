@@ -354,7 +354,8 @@ class VkBreadcrumb {
 	/**
 	 * Get Bread Crumb
 	 *
-	 * @param array $options
+	 * @param array $options オプション配列。id_outer / class_outer / wrapper_attributes / class_inner / class_list / class_list_item を指定できる。
+	 * @return string パンくずの HTML 文字列。
 	 */
 	public static function get_breadcrumb( $options = array() ) {
 
@@ -380,7 +381,12 @@ class VkBreadcrumb {
 		$microdata_li_a      = ' itemprop="item"';
 		$microdata_li_a_span = ' itemprop="name"';
 
-		$breadcrumb_html = '<!-- [ #' . esc_attr( $options['class_outer'] ) . ' ] -->';
+		// スクリーンリーダー向けのランドマーク aria-label。翻訳可能かつフィルタで上書き可能にする。
+		$nav_aria_label = apply_filters( 'vk_breadcrumb_nav_aria_label', __( 'Breadcrumb', 'lightning' ) );
+
+		// 最も外側を <nav> で囲み、ナビゲーションランドマークとして識別させる。
+		$breadcrumb_html  = '<nav aria-label="' . esc_attr( $nav_aria_label ) . '">';
+		$breadcrumb_html .= '<!-- [ #' . esc_attr( $options['class_outer'] ) . ' ] -->';
 		if ( ! empty( $options['wrapper_attributes'] ) ) {
 			$breadcrumb_html .= '<div id="' . esc_attr( $options['id_outer'] ) . '" ' . $options['wrapper_attributes'] . '>';
 		} else {
@@ -388,6 +394,9 @@ class VkBreadcrumb {
 		}
 		$breadcrumb_html .= '<div class="' . esc_attr( $options['class_inner'] ) . '">';
 		$breadcrumb_html .= '<ol class="' . esc_attr( $options['class_list'] ) . '" itemscope itemtype="https://schema.org/BreadcrumbList">';
+
+		// パンくず配列の最後のキーを取得。現在ページの判定に使う。
+		$last_key = array_key_last( $breadcrumb_array );
 
 		$position = 0;
 		foreach ( $breadcrumb_array as $key => $value ) {
@@ -418,7 +427,11 @@ class VkBreadcrumb {
 				'ruby' => array(),
 				'rt'   => array(),
 			);
-			$breadcrumb_html                   .= '<span' . $microdata_li_a_span . '>' . wp_kses( $value['name'], $breadclumb_post_title_allowed_html ) . '</span>';
+
+			// 最後の要素（現在ページ）のみ aria-current="page" を付与する。
+			$aria_current_attr = ( $key === $last_key ) ? ' aria-current="page"' : '';
+
+			$breadcrumb_html .= '<span' . $microdata_li_a_span . $aria_current_attr . '>' . wp_kses( $value['name'], $breadclumb_post_title_allowed_html ) . '</span>';
 
 			if ( $value['url'] ) {
 				$breadcrumb_html .= '</a>';
@@ -430,21 +443,32 @@ class VkBreadcrumb {
 
 		}
 
-			$breadcrumb_html .= '</ol>';
-			$breadcrumb_html .= '</div>';
-			$breadcrumb_html .= '</div>';
-			$breadcrumb_html .= '<!-- [ /#' . esc_attr( $options['class_outer'] ) . ' ] -->';
-			$breadcrumb_html  = apply_filters( 'vk_breadcrumb_html', $breadcrumb_html );
-			return $breadcrumb_html;
+		$breadcrumb_html .= '</ol>';
+		$breadcrumb_html .= '</div>';
+		$breadcrumb_html .= '</div>';
+		$breadcrumb_html .= '<!-- [ /#' . esc_attr( $options['class_outer'] ) . ' ] -->';
+		// <nav> ランドマークの閉じタグ。
+		$breadcrumb_html .= '</nav>';
+		$breadcrumb_html  = apply_filters( 'vk_breadcrumb_html', $breadcrumb_html );
+		return $breadcrumb_html;
 
 	}
 
 
 	/**
 	 * Print Bread Crumb
+	 *
+	 * wp_kses でサニタイズして出力する。get_breadcrumb() で生成した <nav> / aria-current が
+	 * 剥がされないよう、許可リストに nav タグと aria-current 属性を含めている。
 	 */
 	public static function the_breadcrumb() {
 		$allowed_html = array(
+			// ナビゲーションランドマーク。aria-label が剥がされないよう許可する。
+			'nav'  => array(
+				'id'         => array(),
+				'class'      => array(),
+				'aria-label' => array(),
+			),
 			'div'  => array(
 				'id'        => array(),
 				'class'     => array(),
@@ -474,11 +498,13 @@ class VkBreadcrumb {
 				'itemprop' => array(),
 			),
 			'span' => array(
-				'id'        => array(),
-				'class'     => array(),
-				'itemprop'  => array(),
-				'itemscope' => array(),
-				'itemtype'  => array(),
+				'id'          => array(),
+				'class'       => array(),
+				'itemprop'    => array(),
+				'itemscope'   => array(),
+				'itemtype'    => array(),
+				// 現在ページを示す aria-current が剥がされないよう許可する。
+				'aria-current' => array(),
 			),
 			'i'    => array(
 				'id'    => array(),
