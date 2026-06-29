@@ -409,7 +409,13 @@ class VkBreadcrumb {
 			}
 			$class .= '"';
 
-			$breadcrumb_html .= '<li' . $id . $class . $microdata_li . '>';
+			// 最後の要素（現在ページ）の <li> に aria-current="page" を付与する。
+			// span ではなく li に付けることで、末端要素がリンク（<a>）を持つ場合でも
+			// 「リンク内の非インタラクティブ子要素に aria-current」という構造を避けられ、
+			// リンクの有無に関わらず「最後のリスト項目＝現在地」が構造的に明確になる。
+			$aria_current_attr = ( $key === $last_key ) ? ' aria-current="page"' : '';
+
+			$breadcrumb_html .= '<li' . $id . $class . $microdata_li . $aria_current_attr . '>';
 
 			if ( $value['url'] ) {
 				$breadcrumb_html .= '<a href="' . esc_url( $value['url'] ) . '"' . $microdata_li_a . '>';
@@ -428,10 +434,7 @@ class VkBreadcrumb {
 				'rt'   => array(),
 			);
 
-			// 最後の要素（現在ページ）のみ aria-current="page" を付与する。
-			$aria_current_attr = ( $key === $last_key ) ? ' aria-current="page"' : '';
-
-			$breadcrumb_html .= '<span' . $microdata_li_a_span . $aria_current_attr . '>' . wp_kses( $value['name'], $breadclumb_post_title_allowed_html ) . '</span>';
+			$breadcrumb_html .= '<span' . $microdata_li_a_span . '>' . wp_kses( $value['name'], $breadclumb_post_title_allowed_html ) . '</span>';
 
 			if ( $value['url'] ) {
 				$breadcrumb_html .= '</a>';
@@ -489,6 +492,8 @@ class VkBreadcrumb {
 				'itemprop'  => array(),
 				'itemscope' => array(),
 				'itemtype'  => array(),
+				// 現在ページを示す aria-current が剥がされないよう許可する。
+				'aria-current' => array(),
 			),
 			'a'    => array(
 				'id'       => array(),
@@ -498,13 +503,11 @@ class VkBreadcrumb {
 				'itemprop' => array(),
 			),
 			'span' => array(
-				'id'          => array(),
-				'class'       => array(),
-				'itemprop'    => array(),
-				'itemscope'   => array(),
-				'itemtype'    => array(),
-				// 現在ページを示す aria-current が剥がされないよう許可する。
-				'aria-current' => array(),
+				'id'        => array(),
+				'class'     => array(),
+				'itemprop'  => array(),
+				'itemscope' => array(),
+				'itemtype'  => array(),
 			),
 			'i'    => array(
 				'id'    => array(),

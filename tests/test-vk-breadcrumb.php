@@ -759,6 +759,10 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 			'post_parent'  => $parent_page_id,
 		) );
 
+		// aria-current="page" が <li> 開始タグの中に付くことを検証する正規表現。
+		// （span ではなく li に付与する設計のため、開始タグ <li ... aria-current="page"> を期待する）
+		$li_aria_current_regex = '/<li[^>]*aria-current="page"/';
+
 		$test_cases = array(
 			array(
 				'test_condition_name' => '子固定ページ表示時 => <nav> と aria-label が出力される',
@@ -768,30 +772,34 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 					'aria-label=',
 				),
 				'expected_not_contains' => array(),
+				'expected_li_aria_current' => true,
 			),
 			array(
-				'test_condition_name' => '子固定ページ表示時 => 最後の要素（現在ページ）に aria-current="page" が付く',
+				'test_condition_name' => '子固定ページ表示時 => 最後の要素（現在ページ）の <li> に aria-current="page" が付く',
 				'target_url'          => get_permalink( $child_page_id ),
 				'expected_contains'   => array(
 					'aria-current="page"',
 				),
 				'expected_not_contains' => array(),
+				'expected_li_aria_current' => true,
 			),
 			array(
-				'test_condition_name' => '親固定ページ（リンクなし末端）でも aria-current="page" が付く',
+				'test_condition_name' => '親固定ページ（リンクなし末端）でも <li> に aria-current="page" が付く',
 				'target_url'          => get_permalink( $parent_page_id ),
 				'expected_contains'   => array(
 					'aria-current="page"',
 				),
 				'expected_not_contains' => array(),
+				'expected_li_aria_current' => true,
 			),
 			array(
-				'test_condition_name' => 'トップページ（HOME1項目のみ）でも <nav> は出力される',
+				'test_condition_name' => 'トップページ（HOME1項目のみ）でも <nav> と唯一の <li> の aria-current が出力される',
 				'target_url'          => home_url(),
 				'expected_contains'   => array(
 					'<nav ',
 				),
 				'expected_not_contains' => array(),
+				'expected_li_aria_current' => true,
 			),
 		);
 
@@ -804,6 +812,10 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 			}
 			foreach ( $case['expected_not_contains'] as $needle ) {
 				$this->assertStringNotContainsString( $needle, $html, $case['test_condition_name'] . ' / 含まれてはいけない文字列: ' . $needle );
+			}
+			// aria-current が <li> 開始タグに付いていることを正規表現で検証する。
+			if ( ! empty( $case['expected_li_aria_current'] ) ) {
+				$this->assertMatchesRegularExpression( $li_aria_current_regex, $html, $case['test_condition_name'] . ' / <li> に aria-current="page" が付くこと' );
 			}
 		}
 
@@ -836,23 +848,28 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 			'post_parent'  => $parent_page_id,
 		) );
 
+		// wp_kses 通過後も aria-current が <li> に残ることを検証する正規表現。
+		$li_aria_current_regex = '/<li[^>]*aria-current="page"/';
+
 		$test_cases = array(
 			array(
-				'test_condition_name' => 'the_breadcrumb() は wp_kses 後も <nav aria-label を出力する',
+				'test_condition_name' => 'the_breadcrumb() は wp_kses 後も <nav aria-label と <li の aria-current を出力する',
 				'target_url'          => get_permalink( $child_page_id ),
 				'expected_contains'   => array(
 					'<nav ',
 					'aria-label=',
 					'aria-current="page"',
 				),
+				'expected_li_aria_current' => true,
 			),
 			array(
-				'test_condition_name' => '境界値: トップページのみのパンくずでも <nav> が出力される',
+				'test_condition_name' => '境界値: トップページのみのパンくずでも <nav> と <li の aria-current が出力される',
 				'target_url'          => home_url(),
 				'expected_contains'   => array(
 					'<nav ',
 					'</nav>',
 				),
+				'expected_li_aria_current' => true,
 			),
 		);
 
@@ -866,6 +883,10 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 
 			foreach ( $case['expected_contains'] as $needle ) {
 				$this->assertStringContainsString( $needle, $html, $case['test_condition_name'] . ' / 期待文字列: ' . $needle );
+			}
+			// wp_kses 後も aria-current が <li> 開始タグに残っていることを検証する。
+			if ( ! empty( $case['expected_li_aria_current'] ) ) {
+				$this->assertMatchesRegularExpression( $li_aria_current_regex, $html, $case['test_condition_name'] . ' / wp_kses 後も <li> に aria-current="page" が残ること' );
 			}
 		}
 
