@@ -822,6 +822,22 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 			}
 		}
 
+		// vk_breadcrumb_nav_aria_label フィルタで <nav> の aria-label を上書きできることを検証する。
+		// テスト間に漏れないよう、検証後に必ず remove_filter() で外す。
+		$custom_aria_label = 'カスタムパンくず';
+		$aria_label_filter = function () use ( $custom_aria_label ) {
+			return $custom_aria_label;
+		};
+		add_filter( 'vk_breadcrumb_nav_aria_label', $aria_label_filter );
+		$this->go_to( get_permalink( $child_page_id ) );
+		$filtered_html = VkBreadcrumb::get_breadcrumb();
+		remove_filter( 'vk_breadcrumb_nav_aria_label', $aria_label_filter );
+		$this->assertStringContainsString(
+			'<nav aria-label="' . $custom_aria_label . '">',
+			$filtered_html,
+			'vk_breadcrumb_nav_aria_label フィルタで <nav> の aria-label を上書きできること'
+		);
+
 		// テストデータを削除
 		wp_delete_post( $child_page_id, true );
 		wp_delete_post( $parent_page_id, true );
