@@ -37,8 +37,7 @@ npm run phpunit
 
 ## Change log
 
-[ アクセシビリティ ] パンくずをナビゲーションランドマーク（nav 要素）で囲み、現在ページに aria-current="page" を付与
-
+[ 機能追加 ] パンくずのナビゲーションランドマーク化と現在ページの明示（nav / aria-current）
 [ Other ] アイコンを Font Awesome 7 に対応
 [ 開発環境 ] vk-helpers の require を ^0.2.1 || ^0.3.0 に緩和
 
