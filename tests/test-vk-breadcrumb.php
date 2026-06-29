@@ -816,6 +816,9 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 			// aria-current が <li> 開始タグに付いていることを正規表現で検証する。
 			if ( ! empty( $case['expected_li_aria_current'] ) ) {
 				$this->assertMatchesRegularExpression( $li_aria_current_regex, $html, $case['test_condition_name'] . ' / <li> に aria-current="page" が付くこと' );
+				// 現在ページは1つだけなので、aria-current="page" はちょうど1箇所であることまで固定する。
+				preg_match_all( $li_aria_current_regex, $html, $li_aria_current_matches );
+				$this->assertSame( 1, count( $li_aria_current_matches[0] ), $case['test_condition_name'] . ' / aria-current="page" が <li> にちょうど1箇所だけ付くこと' );
 			}
 		}
 
@@ -887,6 +890,9 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 			// wp_kses 後も aria-current が <li> 開始タグに残っていることを検証する。
 			if ( ! empty( $case['expected_li_aria_current'] ) ) {
 				$this->assertMatchesRegularExpression( $li_aria_current_regex, $html, $case['test_condition_name'] . ' / wp_kses 後も <li> に aria-current="page" が残ること' );
+				// 現在ページは1つだけなので、wp_kses 後も aria-current="page" はちょうど1箇所であることまで固定する。
+				preg_match_all( $li_aria_current_regex, $html, $li_aria_current_matches );
+				$this->assertSame( 1, count( $li_aria_current_matches[0] ), $case['test_condition_name'] . ' / wp_kses 後も aria-current="page" が <li> にちょうど1箇所だけ残ること' );
 			}
 		}
 
