@@ -737,4 +737,183 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 		update_option( 'page_on_front', $before_page_on_front );
 		update_option( 'show_on_front', $before_show_on_front );
 	}
+
+	/**
+	 * get_breadcrumb() の HTML 出力に <nav> ランドマークと aria-current が含まれるか検証する。
+	 */
+	function test_get_breadcrumb() {
+
+		// テスト用の固定ページを作成（親・子の2階層）
+		$parent_page_id = wp_insert_post( array(
+			'post_title'   => 'a11y-parent-page',
+			'post_type'    => 'page',
+			'post_status'  => 'publish',
+			'post_content' => 'content',
+		) );
+
+		$child_page_id = wp_insert_post( array(
+			'post_title'   => 'a11y-child-page',
+			'post_type'    => 'page',
+			'post_status'  => 'publish',
+			'post_content' => 'content',
+			'post_parent'  => $parent_page_id,
+		) );
+
+		// aria-current="page" が <li> 開始タグの中に付くことを検証する正規表現。
+		// （span ではなく li に付与する設計のため、開始タグ <li ... aria-current="page"> を期待する）
+		$li_aria_current_regex = '/<li[^>]*aria-current="page"/';
+
+		$test_cases = array(
+			array(
+				'test_condition_name' => '子固定ページ表示時 => <nav> と aria-label が出力される',
+				'target_url'          => get_permalink( $child_page_id ),
+				'expected_contains'   => array(
+					'<nav ',
+					'aria-label=',
+				),
+				'expected_not_contains' => array(),
+				'expected_li_aria_current' => true,
+			),
+			array(
+				'test_condition_name' => '子固定ページ表示時 => 最後の要素（現在ページ）の <li> に aria-current="page" が付く',
+				'target_url'          => get_permalink( $child_page_id ),
+				'expected_contains'   => array(
+					'aria-current="page"',
+				),
+				'expected_not_contains' => array(),
+				'expected_li_aria_current' => true,
+			),
+			array(
+				'test_condition_name' => '親固定ページ（リンクなし末端）でも <li> に aria-current="page" が付く',
+				'target_url'          => get_permalink( $parent_page_id ),
+				'expected_contains'   => array(
+					'aria-current="page"',
+				),
+				'expected_not_contains' => array(),
+				'expected_li_aria_current' => true,
+			),
+			array(
+				'test_condition_name' => 'トップページ（HOME1項目のみ）でも <nav> と唯一の <li> の aria-current が出力される',
+				'target_url'          => home_url(),
+				'expected_contains'   => array(
+					'<nav ',
+				),
+				'expected_not_contains' => array(),
+				'expected_li_aria_current' => true,
+			),
+		);
+
+		foreach ( $test_cases as $case ) {
+			$this->go_to( $case['target_url'] );
+			$html = VkBreadcrumb::get_breadcrumb();
+
+			foreach ( $case['expected_contains'] as $needle ) {
+				$this->assertStringContainsString( $needle, $html, $case['test_condition_name'] . ' / 期待文字列: ' . $needle );
+			}
+			foreach ( $case['expected_not_contains'] as $needle ) {
+				$this->assertStringNotContainsString( $needle, $html, $case['test_condition_name'] . ' / 含まれてはいけない文字列: ' . $needle );
+			}
+			// aria-current が <li> 開始タグに付いていることを正規表現で検証する。
+			if ( ! empty( $case['expected_li_aria_current'] ) ) {
+				$this->assertMatchesRegularExpression( $li_aria_current_regex, $html, $case['test_condition_name'] . ' / <li> に aria-current="page" が付くこと' );
+				// 現在ページは1つだけなので、aria-current="page" はちょうど1箇所であることまで固定する。
+				preg_match_all( $li_aria_current_regex, $html, $li_aria_current_matches );
+				$this->assertSame( 1, count( $li_aria_current_matches[0] ), $case['test_condition_name'] . ' / aria-current="page" が <li> にちょうど1箇所だけ付くこと' );
+			}
+		}
+
+		// vk_breadcrumb_nav_aria_label フィルタで <nav> の aria-label を上書きできることを検証する。
+		// テスト間に漏れないよう、検証後に必ず remove_filter() で外す。
+		$custom_aria_label = 'カスタムパンくず';
+		$aria_label_filter = function () use ( $custom_aria_label ) {
+			return $custom_aria_label;
+		};
+		add_filter( 'vk_breadcrumb_nav_aria_label', $aria_label_filter );
+		$this->go_to( get_permalink( $child_page_id ) );
+		$filtered_html = VkBreadcrumb::get_breadcrumb();
+		remove_filter( 'vk_breadcrumb_nav_aria_label', $aria_label_filter );
+		$this->assertStringContainsString(
+			'<nav aria-label="' . $custom_aria_label . '">',
+			$filtered_html,
+			'vk_breadcrumb_nav_aria_label フィルタで <nav> の aria-label を上書きできること'
+		);
+
+		// テストデータを削除
+		wp_delete_post( $child_page_id, true );
+		wp_delete_post( $parent_page_id, true );
+	}
+
+	/**
+	 * the_breadcrumb() が wp_kses 通過後も <nav> と aria-current を出力するか検証する。
+	 *
+	 * wp_kses の許可リストに nav / aria-label / aria-current が追加されていなければ
+	 * これらの属性・タグが剥がされてしまう。
+	 */
+	function test_the_breadcrumb() {
+
+		// テスト用の固定ページを2つ作成
+		$parent_page_id = wp_insert_post( array(
+			'post_title'   => 'kses-parent-page',
+			'post_type'    => 'page',
+			'post_status'  => 'publish',
+			'post_content' => 'content',
+		) );
+
+		$child_page_id = wp_insert_post( array(
+			'post_title'   => 'kses-child-page',
+			'post_type'    => 'page',
+			'post_status'  => 'publish',
+			'post_content' => 'content',
+			'post_parent'  => $parent_page_id,
+		) );
+
+		// wp_kses 通過後も aria-current が <li> に残ることを検証する正規表現。
+		$li_aria_current_regex = '/<li[^>]*aria-current="page"/';
+
+		$test_cases = array(
+			array(
+				'test_condition_name' => 'the_breadcrumb() は wp_kses 後も <nav aria-label と <li の aria-current を出力する',
+				'target_url'          => get_permalink( $child_page_id ),
+				'expected_contains'   => array(
+					'<nav ',
+					'aria-label=',
+					'aria-current="page"',
+				),
+				'expected_li_aria_current' => true,
+			),
+			array(
+				'test_condition_name' => '境界値: トップページのみのパンくずでも <nav> と <li の aria-current が出力される',
+				'target_url'          => home_url(),
+				'expected_contains'   => array(
+					'<nav ',
+					'</nav>',
+				),
+				'expected_li_aria_current' => true,
+			),
+		);
+
+		foreach ( $test_cases as $case ) {
+			$this->go_to( $case['target_url'] );
+
+			// the_breadcrumb() は echo するため ob_start() でキャプチャする
+			ob_start();
+			VkBreadcrumb::the_breadcrumb();
+			$html = ob_get_clean();
+
+			foreach ( $case['expected_contains'] as $needle ) {
+				$this->assertStringContainsString( $needle, $html, $case['test_condition_name'] . ' / 期待文字列: ' . $needle );
+			}
+			// wp_kses 後も aria-current が <li> 開始タグに残っていることを検証する。
+			if ( ! empty( $case['expected_li_aria_current'] ) ) {
+				$this->assertMatchesRegularExpression( $li_aria_current_regex, $html, $case['test_condition_name'] . ' / wp_kses 後も <li> に aria-current="page" が残ること' );
+				// 現在ページは1つだけなので、wp_kses 後も aria-current="page" はちょうど1箇所であることまで固定する。
+				preg_match_all( $li_aria_current_regex, $html, $li_aria_current_matches );
+				$this->assertSame( 1, count( $li_aria_current_matches[0] ), $case['test_condition_name'] . ' / wp_kses 後も aria-current="page" が <li> にちょうど1箇所だけ残ること' );
+			}
+		}
+
+		// テストデータを削除
+		wp_delete_post( $child_page_id, true );
+		wp_delete_post( $parent_page_id, true );
+	}
 }
