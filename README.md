@@ -37,9 +37,9 @@ npm run phpunit
 
 ## Change log
 
-[ 機能追加 ] パンくずのナビゲーションランドマーク化と現在ページの明示（nav / aria-current）
+[ New Feature ] パンくずのナビゲーションランドマーク化と現在ページの明示（nav / aria-current）
+[ Dev Environment ] vk-helpers の require を ^0.2.1 || ^0.3.0 に緩和
 [ Other ] アイコンを Font Awesome 7 に対応
-[ 開発環境 ] vk-helpers の require を ^0.2.1 || ^0.3.0 に緩和
 
 0.2.8
 [ Other ] VkHelpers を static メソッドとして呼び出すように変更
