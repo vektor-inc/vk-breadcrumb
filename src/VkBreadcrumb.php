@@ -525,9 +525,14 @@ class VkBreadcrumb {
 
 
 	/**
-	 * Scheme array
+	 * 構造化データ（JSON-LD）用のパンくず配列を返す
 	 *
-	 * @return array $json_array
+	 * get_array() のパンくず配列を、schema.org の BreadcrumbList の形に組み替える。
+	 * name はタグを除き、文字参照（&amp; など）を元の文字に戻した文字列。
+	 * item は文字参照を元の文字に戻し、esc_url_raw() で無害化した URL。
+	 * どちらも HTML 用にはエスケープしていないため、HTML に出力するときは呼び出し側でエスケープすること。
+	 *
+	 * @return array $json_array BreadcrumbList 形式の配列。
 	 */
 	public static function get_scheme_json_array() {
 		$array                  = self::get_array();
@@ -538,9 +543,19 @@ class VkBreadcrumb {
 		foreach ( $array as $key => $value ) {
 			$json_array['itemListElement'][ $key ]['@type']    = 'ListItem';
 			$json_array['itemListElement'][ $key ]['position'] = $count;
-			$json_array['itemListElement'][ $key ]['name']     = esc_html( $value['name'] );
+
+			// 名前は HTML 用の書き方（保存時の &amp; や、表示用の整形でできる &#038; &#8217; など）で入ってくる。
+			// JSON は HTML として読まれないため、文字参照のまま検索エンジンに伝わらないよう、タグを除いて元の文字に戻す。
+			// タグの始まりにならない単独の <（例: x<5）は、タグを除く前に &lt; にしておく（そのままだと < 以降がタグとして消える）。
+			$name = preg_replace( '/<(?![a-zA-Z\/!?])/', '&lt;', (string) $value['name'] );
+			// タグを除いてから文字参照を戻すこと（逆にすると、文字参照で書かれた < > までタグとして消える）。
+			$json_array['itemListElement'][ $key ]['name'] = html_entity_decode( wp_strip_all_tags( $name ), ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+
 			if ( ! empty( $value['url'] ) ) {
-				$json_array['itemListElement'][ $key ]['item'] = esc_html( esc_url( $value['url'] ) );
+				// URL は esc_url() 済み（& が &#038;）で入ってくることがあるため、文字参照を元の文字に戻す。
+				// esc_url() は & を &#038; に変えるため、& をそのまま残す esc_url_raw() で無害化する。
+				// 文字参照で書いた javascript: なども弾けるよう、戻してから無害化すること（順番を逆にしない）。
+				$json_array['itemListElement'][ $key ]['item'] = esc_url_raw( html_entity_decode( $value['url'], ENT_QUOTES | ENT_HTML5, 'UTF-8' ) );
 			}
 			$count++;
 		}
@@ -548,14 +563,17 @@ class VkBreadcrumb {
 	}
 
 	/**
-	 * Print scheme script
+	 * 構造化データ（JSON-LD）の script 要素を出力する
+	 *
+	 * get_scheme_json_array() の配列を JSON にして、<script type="application/ld+json"> で出力する。
 	 *
 	 * @return void
 	 */
 	public static function the_scheme_script() {
 		$json_array = self::get_scheme_json_array();
 		echo '<script type="application/ld+json">' . "\n";
-		echo wp_json_encode( $json_array, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT );
+		// JSON_HEX_TAG を外さないこと。< と > を \u003C・\u003E にして、値の中の </script> や <!-- で script 要素が閉じたり壊れたりするのを防いでいる。
+		echo wp_json_encode( $json_array, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_HEX_TAG );
 		echo '</script>';
 	}
 }

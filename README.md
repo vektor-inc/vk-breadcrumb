@@ -38,6 +38,7 @@ npm run phpunit
 ## Change log
 
 [ New Feature ] パンくずのナビゲーションランドマーク化と現在ページの明示（nav / aria-current）
+[ Bug Fix ] パンくずの構造化データで、カテゴリー名・タイトル・URL の「&」などが「&amp;」のまま出力され、検索エンジンに正しい名前や URL が伝わらない不具合を修正
 [ Dev Environment ] vk-helpers の require を ^0.2.1 || ^0.3.0 に緩和
 [ Other ] アイコンを Font Awesome 7 に対応
 
