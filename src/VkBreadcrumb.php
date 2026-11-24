@@ -384,14 +384,15 @@ class VkBreadcrumb {
 		// スクリーンリーダー向けのランドマーク aria-label。翻訳可能かつフィルタで上書き可能にする。
 		$nav_aria_label = apply_filters( 'vk_breadcrumb_nav_aria_label', __( 'Breadcrumb', 'lightning' ) );
 
-		// 最も外側を <nav> で囲み、ナビゲーションランドマークとして識別させる。
-		$breadcrumb_html  = '<nav aria-label="' . esc_attr( $nav_aria_label ) . '">';
-		$breadcrumb_html .= '<!-- [ #' . esc_attr( $options['class_outer'] ) . ' ] -->';
+		// <nav> は外側の div（非表示クラスが付く枠）の内側に置く。
+		// 枠ごと隠れたときに、中身のない nav ランドマークだけが残らないようにするため。
+		$breadcrumb_html = '<!-- [ #' . esc_attr( $options['class_outer'] ) . ' ] -->';
 		if ( ! empty( $options['wrapper_attributes'] ) ) {
 			$breadcrumb_html .= '<div id="' . esc_attr( $options['id_outer'] ) . '" ' . $options['wrapper_attributes'] . '>';
 		} else {
 			$breadcrumb_html .= '<div id="' . esc_attr( $options['id_outer'] ) . '" class="' . $options['class_outer'] . '">';
 		}
+		$breadcrumb_html .= '<nav aria-label="' . esc_attr( $nav_aria_label ) . '">';
 		$breadcrumb_html .= '<div class="' . esc_attr( $options['class_inner'] ) . '">';
 		$breadcrumb_html .= '<ol class="' . esc_attr( $options['class_list'] ) . '" itemscope itemtype="https://schema.org/BreadcrumbList">';
 
@@ -448,10 +449,9 @@ class VkBreadcrumb {
 
 		$breadcrumb_html .= '</ol>';
 		$breadcrumb_html .= '</div>';
+		$breadcrumb_html .= '</nav>';
 		$breadcrumb_html .= '</div>';
 		$breadcrumb_html .= '<!-- [ /#' . esc_attr( $options['class_outer'] ) . ' ] -->';
-		// <nav> ランドマークの閉じタグ。
-		$breadcrumb_html .= '</nav>';
 		$breadcrumb_html  = apply_filters( 'vk_breadcrumb_html', $breadcrumb_html );
 		return $breadcrumb_html;
 
