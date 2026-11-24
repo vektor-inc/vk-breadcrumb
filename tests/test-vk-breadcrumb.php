@@ -1016,6 +1016,13 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 				'test_condition_name' => 'カテゴリーの URL が ?a=1&b=2 を含む => item の & は &amp; や &#038; にならずそのまま',
 				'conditions'          => array(
 					'filters' => array(
+						/**
+						 * カテゴリーの URL を、& を含む固定の URL に差し替える。
+						 *
+						 * @param string  $link 元のタームの URL（使わない）。
+						 * @param WP_Term $term URL を取得するターム。
+						 * @return string ターム ID と ?a=1&b=2 を含む URL。
+						 */
 						'term_link' => function ( $link, $term ) {
 							return 'https://example.com/?cat=' . $term->term_id . '&a=1&b=2';
 						},
@@ -1056,6 +1063,11 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 				'test_condition_name' => '投稿タイプの名前とアーカイブ URL が esc_html() / esc_url() 済み（&amp; / &#038;）で入る => 元の & に戻る',
 				'conditions'          => array(
 					'filters' => array(
+						/**
+						 * 投稿タイプのアーカイブ URL を、& を含む固定の URL に差し替える。
+						 *
+						 * @return string & を含むアーカイブ URL。
+						 */
 						'post_type_archive_link' => function () {
 							return 'https://example.com/events/?lang=en&ref=a';
 						},
@@ -1134,6 +1146,11 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 				'test_condition_name' => '異常系: フィルターでタグ・単独の <・文字参照で書いた </script> を含む名前と、文字参照で書いた javascript: の URL を渡す => タグは除かれ、文字参照は元の文字に戻り、javascript: の URL は空になる',
 				'conditions'          => array(
 					'filters' => array(
+						/**
+						 * パンくず配列を、タグ・単独の <・文字参照を含む名前と URL の固定の配列に差し替える。
+						 *
+						 * @return array 差し替え後のパンくず配列。
+						 */
 						'vk_breadcrumb_array' => function () {
 							return array(
 								array(
@@ -1382,6 +1399,11 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 			$breadcrumb_array_filter = null;
 			if ( is_array( $case['breadcrumb_array'] ) ) {
 				$breadcrumb_array        = $case['breadcrumb_array'];
+				/**
+				 * パンくず配列を、ケースで指定した配列に差し替える。
+				 *
+				 * @return array ケースの breadcrumb_array。
+				 */
 				$breadcrumb_array_filter = function () use ( $breadcrumb_array ) {
 					return $breadcrumb_array;
 				};
