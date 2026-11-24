@@ -801,11 +801,39 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 				'expected_not_contains' => array(),
 				'expected_li_aria_current' => true,
 			),
+			array(
+				'test_condition_name' => '既定オプション => <nav> は id_outer の div の内側にあり、外側には出ない',
+				'target_url'          => get_permalink( $child_page_id ),
+				'options'             => array(),
+				'expected_contains'   => array(),
+				'expected_not_contains' => array(),
+				'expected_html_regex' => '/\A<!-- \[ #breadcrumb \] --><div id="breadcrumb" class="breadcrumb"><nav aria-label="[^"]*"><div class="container"><ol .*<\/ol><\/div><\/nav><\/div><!-- \[ \/#breadcrumb \] -->\z/s',
+			),
+			array(
+				'test_condition_name' => 'wrapper_attributes（非表示クラス付き）指定 => <nav> は非表示クラスの付く div の内側にあり、外側には出ない',
+				'target_url'          => get_permalink( $child_page_id ),
+				'options'             => array(
+					'id_outer'           => 'breadcrumb',
+					'class_outer'        => 'vk-breadcrumb',
+					'wrapper_attributes' => 'class="vk-breadcrumb vk_hidden-xs"',
+					'class_inner'        => 'container',
+					'class_list'         => 'breadcrumb-list',
+					'class_list_item'    => 'breadcrumb-list__item',
+				),
+				'expected_contains'   => array(),
+				'expected_not_contains' => array(),
+				'expected_html_regex' => '/\A<!-- \[ #vk-breadcrumb \] --><div id="breadcrumb" class="vk-breadcrumb vk_hidden-xs"><nav aria-label="[^"]*"><div class="container"><ol .*<\/ol><\/div><\/nav><\/div><!-- \[ \/#vk-breadcrumb \] -->\z/s',
+			),
 		);
 
 		foreach ( $test_cases as $case ) {
 			$this->go_to( $case['target_url'] );
-			$html = VkBreadcrumb::get_breadcrumb();
+			$html = VkBreadcrumb::get_breadcrumb( isset( $case['options'] ) ? $case['options'] : array() );
+
+			// 全体の構造（nav が外側の div の内側にあること）を正規表現で検証する。
+			if ( ! empty( $case['expected_html_regex'] ) ) {
+				$this->assertMatchesRegularExpression( $case['expected_html_regex'], $html, $case['test_condition_name'] );
+			}
 
 			foreach ( $case['expected_contains'] as $needle ) {
 				$this->assertStringContainsString( $needle, $html, $case['test_condition_name'] . ' / 期待文字列: ' . $needle );
