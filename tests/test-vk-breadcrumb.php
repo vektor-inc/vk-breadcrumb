@@ -916,4 +916,527 @@ class VkBreadcrumbTest extends WP_UnitTestCase {
 		wp_delete_post( $child_page_id, true );
 		wp_delete_post( $parent_page_id, true );
 	}
+
+	/**
+	 * get_scheme_json_array() が、構造化データ（JSON-LD）用に、名前のタグを除き、
+	 * 名前と URL の文字参照（&amp; や &#038; など）を元の文字に戻した値を返すか検証する。
+	 */
+	public function test_get_scheme_json_array() {
+
+		// アーカイブの URL を VkHelpers が esc_url() 済みで返す、テスト用の投稿タイプを登録する。
+		register_post_type(
+			'scheme_event',
+			array(
+				'label'       => 'Tom & Jerry Events',
+				'has_archive' => true,
+				'public'      => true,
+			)
+		);
+
+		// & を含むカテゴリー（親・子）を作成する。保存時に & は &amp; になる。
+		$parent_category_id = wp_insert_category( array( 'cat_name' => 'Tom & Jerry' ) );
+		$child_category_id  = wp_insert_category(
+			array(
+				'cat_name'        => "Q&A It's",
+				'category_parent' => $parent_category_id,
+			)
+		);
+
+		// & ' " を含むタイトルの投稿を作成する。表示時に ' は &#8217; などへ整形される。
+		$post_id = wp_insert_post(
+			array(
+				'post_title'    => 'Tom & Jerry\'s "Show"',
+				'post_status'   => 'publish',
+				'post_content'  => 'content',
+				'post_category' => array( $child_category_id ),
+			)
+		);
+
+		// テスト用の投稿タイプの投稿を作成する。
+		$event_post_id = wp_insert_post(
+			array(
+				'post_title'   => 'scheme-event-post',
+				'post_type'    => 'scheme_event',
+				'post_status'  => 'publish',
+				'post_content' => 'content',
+			)
+		);
+
+		// 年別アーカイブ用に、日付を固定した投稿を作成する。
+		$year_post_id = wp_insert_post(
+			array(
+				'post_title'   => 'scheme-year-post',
+				'post_status'  => 'publish',
+				'post_content' => 'content',
+				'post_date'    => '2020-05-05 10:00:00',
+			)
+		);
+
+		// 期待値に使う URL。
+		$home_url             = home_url();
+		$parent_category_link = get_term_link( $parent_category_id, 'category' );
+		$child_category_link  = get_term_link( $child_category_id, 'category' );
+
+		$test_cases = array(
+			array(
+				'test_condition_name' => '& を含むカテゴリー名と、& \' " を含む投稿タイトルの投稿ページ => 名前は &amp; や &#8217; ではなく元の文字',
+				'conditions'          => array(),
+				'target_url'          => get_permalink( $post_id ),
+				'expected'            => array(
+					'@context'        => 'https://schema.org',
+					'@type'           => 'BreadcrumbList',
+					'itemListElement' => array(
+						array(
+							'@type'    => 'ListItem',
+							'position' => 1,
+							'name'     => 'HOME',
+							'item'     => $home_url,
+						),
+						array(
+							'@type'    => 'ListItem',
+							'position' => 2,
+							'name'     => 'Tom & Jerry',
+							'item'     => $parent_category_link,
+						),
+						array(
+							'@type'    => 'ListItem',
+							'position' => 3,
+							'name'     => "Q&A It's",
+							'item'     => $child_category_link,
+						),
+						array(
+							'@type'    => 'ListItem',
+							'position' => 4,
+							'name'     => 'Tom & Jerry’s “Show”',
+						),
+					),
+				),
+			),
+			array(
+				'test_condition_name' => 'カテゴリーの URL が ?a=1&b=2 を含む => item の & は &amp; や &#038; にならずそのまま',
+				'conditions'          => array(
+					'filters' => array(
+						/**
+						 * カテゴリーの URL を、& を含む固定の URL に差し替える。
+						 *
+						 * @param string  $link 元のタームの URL（使わない）。
+						 * @param WP_Term $term URL を取得するターム。
+						 * @return string ターム ID と ?a=1&b=2 を含む URL。
+						 */
+						'term_link' => function ( $link, $term ) {
+							return 'https://example.com/?cat=' . $term->term_id . '&a=1&b=2';
+						},
+					),
+				),
+				'target_url'          => get_permalink( $post_id ),
+				'expected'            => array(
+					'@context'        => 'https://schema.org',
+					'@type'           => 'BreadcrumbList',
+					'itemListElement' => array(
+						array(
+							'@type'    => 'ListItem',
+							'position' => 1,
+							'name'     => 'HOME',
+							'item'     => $home_url,
+						),
+						array(
+							'@type'    => 'ListItem',
+							'position' => 2,
+							'name'     => 'Tom & Jerry',
+							'item'     => 'https://example.com/?cat=' . $parent_category_id . '&a=1&b=2',
+						),
+						array(
+							'@type'    => 'ListItem',
+							'position' => 3,
+							'name'     => "Q&A It's",
+							'item'     => 'https://example.com/?cat=' . $child_category_id . '&a=1&b=2',
+						),
+						array(
+							'@type'    => 'ListItem',
+							'position' => 4,
+							'name'     => 'Tom & Jerry’s “Show”',
+						),
+					),
+				),
+			),
+			array(
+				'test_condition_name' => '投稿タイプの名前とアーカイブ URL が esc_html() / esc_url() 済み（&amp; / &#038;）で入る => 元の & に戻る',
+				'conditions'          => array(
+					'filters' => array(
+						/**
+						 * 投稿タイプのアーカイブ URL を、& を含む固定の URL に差し替える。
+						 *
+						 * @return string & を含むアーカイブ URL。
+						 */
+						'post_type_archive_link' => function () {
+							return 'https://example.com/events/?lang=en&ref=a';
+						},
+					),
+				),
+				'target_url'          => get_permalink( $event_post_id ),
+				'expected'            => array(
+					'@context'        => 'https://schema.org',
+					'@type'           => 'BreadcrumbList',
+					'itemListElement' => array(
+						array(
+							'@type'    => 'ListItem',
+							'position' => 1,
+							'name'     => 'HOME',
+							'item'     => $home_url,
+						),
+						array(
+							'@type'    => 'ListItem',
+							'position' => 2,
+							'name'     => 'Tom & Jerry Events',
+							'item'     => 'https://example.com/events/?lang=en&ref=a',
+						),
+						array(
+							'@type'    => 'ListItem',
+							'position' => 3,
+							'name'     => 'scheme-event-post',
+						),
+					),
+				),
+			),
+			array(
+				'test_condition_name' => '検索キーワードに & を含む検索結果ページ => 名前の & は &amp; にならずそのまま',
+				'conditions'          => array(),
+				'target_url'          => home_url( '/?s=Tom+%26+Jerry' ),
+				'expected'            => array(
+					'@context'        => 'https://schema.org',
+					'@type'           => 'BreadcrumbList',
+					'itemListElement' => array(
+						array(
+							'@type'    => 'ListItem',
+							'position' => 1,
+							'name'     => 'HOME',
+							'item'     => $home_url,
+						),
+						array(
+							'@type'    => 'ListItem',
+							'position' => 2,
+							'name'     => 'Search Results for : Tom & Jerry',
+						),
+					),
+				),
+			),
+			array(
+				'test_condition_name' => '境界値: 年別アーカイブのタイトルに含まれる <span> タグ => タグは除かれ、文字だけが名前になる',
+				'conditions'          => array(),
+				'target_url'          => home_url( '/?year=2020' ),
+				'expected'            => array(
+					'@context'        => 'https://schema.org',
+					'@type'           => 'BreadcrumbList',
+					'itemListElement' => array(
+						array(
+							'@type'    => 'ListItem',
+							'position' => 1,
+							'name'     => 'HOME',
+							'item'     => $home_url,
+						),
+						array(
+							'@type'    => 'ListItem',
+							'position' => 2,
+							'name'     => 'Year: 2020',
+						),
+					),
+				),
+			),
+			array(
+				'test_condition_name' => '異常系: フィルターでタグ・単独の <・文字参照で書いた </script> を含む名前と、文字参照で書いた javascript: の URL を渡す => タグは除かれ、文字参照は元の文字に戻り、javascript: の URL は空になる',
+				'conditions'          => array(
+					'filters' => array(
+						/**
+						 * パンくず配列を、タグ・単独の <・文字参照を含む名前と URL の固定の配列に差し替える。
+						 *
+						 * @return array 差し替え後のパンくず配列。
+						 */
+						'vk_breadcrumb_array' => function () {
+							return array(
+								array(
+									'name'  => 'HOME',
+									'id'    => '',
+									'url'   => 'https://example.com/',
+									'class' => '',
+									'icon'  => '',
+								),
+								array(
+									'name'  => '<ruby>漢字<rt>かんじ</rt></ruby>',
+									'id'    => '',
+									'url'   => 'https://example.com/?a=1&#038;b=2',
+									'class' => '',
+									'icon'  => '',
+								),
+								array(
+									'name'  => 'x<5 &amp; y&gt;3',
+									'id'    => '',
+									'url'   => '&#106;avascript:alert(1)',
+									'class' => '',
+									'icon'  => '',
+								),
+								array(
+									'name'  => '&lt;/script&gt;&lt;script&gt;alert(1)&lt;/script&gt;',
+									'id'    => '',
+									'url'   => '',
+									'class' => '',
+									'icon'  => '',
+								),
+							);
+						},
+					),
+				),
+				'target_url'          => home_url(),
+				'expected'            => array(
+					'@context'        => 'https://schema.org',
+					'@type'           => 'BreadcrumbList',
+					'itemListElement' => array(
+						array(
+							'@type'    => 'ListItem',
+							'position' => 1,
+							'name'     => 'HOME',
+							'item'     => 'https://example.com/',
+						),
+						array(
+							'@type'    => 'ListItem',
+							'position' => 2,
+							'name'     => '漢字かんじ',
+							'item'     => 'https://example.com/?a=1&b=2',
+						),
+						array(
+							'@type'    => 'ListItem',
+							'position' => 3,
+							'name'     => 'x<5 & y>3',
+							'item'     => '',
+						),
+						array(
+							'@type'    => 'ListItem',
+							'position' => 4,
+							'name'     => '</script><script>alert(1)</script>',
+						),
+					),
+				),
+			),
+		);
+
+		foreach ( $test_cases as $case ) {
+			// ケースごとのフィルターを登録する。
+			$filters = isset( $case['conditions']['filters'] ) ? $case['conditions']['filters'] : array();
+			foreach ( $filters as $hook => $callback ) {
+				add_filter( $hook, $callback, 10, 3 );
+			}
+
+			// テスト対象のページに移動して、構造化データ用の配列を取得する。
+			$this->go_to( $case['target_url'] );
+			$actual = VkBreadcrumb::get_scheme_json_array();
+
+			// 後続のケースに漏れないよう、フィルターを外す。
+			foreach ( $filters as $hook => $callback ) {
+				remove_filter( $hook, $callback, 10 );
+			}
+
+			$this->assertSame( $case['expected'], $actual, $case['test_condition_name'] );
+		}
+
+		// テストデータと、登録した投稿タイプを削除する。
+		wp_delete_post( $post_id, true );
+		wp_delete_post( $event_post_id, true );
+		wp_delete_post( $year_post_id, true );
+		wp_delete_category( $child_category_id );
+		wp_delete_category( $parent_category_id );
+		unregister_post_type( 'scheme_event' );
+	}
+
+	/**
+	 * the_scheme_script() が、& を &amp; に変えずに出力し、値の中の </script> や <!-- で
+	 * script 要素が閉じたり壊れたりしない JSON-LD を出力するか検証する。
+	 */
+	public function test_the_scheme_script() {
+
+		$test_cases = array(
+			array(
+				'test_condition_name'   => '& を含む名前と URL、&#8217; を含む名前 => script 要素の中に & や ’ がそのまま出力され、読み直すと元の値',
+				'breadcrumb_array'      => array(
+					array(
+						'name'  => 'HOME',
+						'id'    => '',
+						'url'   => 'https://example.com/',
+						'class' => '',
+						'icon'  => '',
+					),
+					array(
+						'name'  => 'Tom &amp; Jerry',
+						'id'    => '',
+						'url'   => 'https://example.com/?a=1&#038;b=2',
+						'class' => '',
+						'icon'  => '',
+					),
+					array(
+						'name'  => 'It&#8217;s',
+						'id'    => '',
+						'url'   => '',
+						'class' => '',
+						'icon'  => '',
+					),
+				),
+				'expected_contains'     => array(
+					'"name": "Tom & Jerry"',
+					'"item": "https://example.com/?a=1&b=2"',
+					'"name": "It’s"',
+				),
+				'expected_not_contains' => array(
+					'&amp;',
+					'&#038;',
+					'&#8217;',
+				),
+				'expected_decoded'      => array(
+					'@context'        => 'https://schema.org',
+					'@type'           => 'BreadcrumbList',
+					'itemListElement' => array(
+						array(
+							'@type'    => 'ListItem',
+							'position' => 1,
+							'name'     => 'HOME',
+							'item'     => 'https://example.com/',
+						),
+						array(
+							'@type'    => 'ListItem',
+							'position' => 2,
+							'name'     => 'Tom & Jerry',
+							'item'     => 'https://example.com/?a=1&b=2',
+						),
+						array(
+							'@type'    => 'ListItem',
+							'position' => 3,
+							'name'     => 'It’s',
+						),
+					),
+				),
+			),
+			array(
+				'test_condition_name'   => '名前に </script> や <!-- を含む => < と > は \u003C と \u003E で出力され、script 要素が途中で閉じず、読み直すと元の値',
+				'breadcrumb_array'      => array(
+					array(
+						'name'  => 'HOME',
+						'id'    => '',
+						'url'   => 'https://example.com/',
+						'class' => '',
+						'icon'  => '',
+					),
+					array(
+						'name'  => '&lt;/script&gt;&lt;script&gt;alert(1)&lt;/script&gt;',
+						'id'    => '',
+						'url'   => '',
+						'class' => '',
+						'icon'  => '',
+					),
+					array(
+						'name'  => '&lt;!-- --&gt;',
+						'id'    => '',
+						'url'   => '',
+						'class' => '',
+						'icon'  => '',
+					),
+				),
+				'expected_contains'     => array(
+					'"name": "\u003C/script\u003E\u003Cscript\u003Ealert(1)\u003C/script\u003E"',
+					'"name": "\u003C!-- --\u003E"',
+				),
+				'expected_not_contains' => array(
+					'<',
+					'>',
+				),
+				'expected_decoded'      => array(
+					'@context'        => 'https://schema.org',
+					'@type'           => 'BreadcrumbList',
+					'itemListElement' => array(
+						array(
+							'@type'    => 'ListItem',
+							'position' => 1,
+							'name'     => 'HOME',
+							'item'     => 'https://example.com/',
+						),
+						array(
+							'@type'    => 'ListItem',
+							'position' => 2,
+							'name'     => '</script><script>alert(1)</script>',
+						),
+						array(
+							'@type'    => 'ListItem',
+							'position' => 3,
+							'name'     => '<!-- -->',
+						),
+					),
+				),
+			),
+			array(
+				'test_condition_name'   => '境界値: フィルターを使わないトップページ（HOME の1項目のみ） => HOME だけの JSON-LD が出力される',
+				'breadcrumb_array'      => null,
+				'expected_contains'     => array(
+					'"name": "HOME"',
+					'"item": "' . home_url() . '"',
+				),
+				'expected_not_contains' => array(
+					'<',
+					'>',
+				),
+				'expected_decoded'      => array(
+					'@context'        => 'https://schema.org',
+					'@type'           => 'BreadcrumbList',
+					'itemListElement' => array(
+						array(
+							'@type'    => 'ListItem',
+							'position' => 1,
+							'name'     => 'HOME',
+							'item'     => home_url(),
+						),
+					),
+				),
+			),
+		);
+
+		foreach ( $test_cases as $case ) {
+			// パンくず配列を差し替えるケースでは、フィルターで配列を返す。
+			$breadcrumb_array_filter = null;
+			if ( is_array( $case['breadcrumb_array'] ) ) {
+				$breadcrumb_array        = $case['breadcrumb_array'];
+				/**
+				 * パンくず配列を、ケースで指定した配列に差し替える。
+				 *
+				 * @return array ケースの breadcrumb_array。
+				 */
+				$breadcrumb_array_filter = function () use ( $breadcrumb_array ) {
+					return $breadcrumb_array;
+				};
+				add_filter( 'vk_breadcrumb_array', $breadcrumb_array_filter );
+			}
+
+			// トップページに移動し、the_scheme_script() は echo するため ob_start() で受け取る。
+			$this->go_to( home_url() );
+			ob_start();
+			VkBreadcrumb::the_scheme_script();
+			$output = ob_get_clean();
+
+			// 後続のケースに漏れないよう、フィルターを外す。
+			if ( $breadcrumb_array_filter ) {
+				remove_filter( 'vk_breadcrumb_array', $breadcrumb_array_filter );
+			}
+
+			// script 要素は1つだけで、値の中の </script> で途中で閉じていないこと。
+			$this->assertSame( 1, substr_count( $output, '</script>' ), $case['test_condition_name'] . ' / </script> は閉じタグの1箇所だけ' );
+
+			// script 要素の中身を取り出す。値の中の </script> で要素が途中で閉じると、中身が途中で切れて以降の検証が一致しなくなる。
+			preg_match( '#<script type="application/ld\+json">\n(.*?)</script>#s', $output, $matches );
+			$payload = isset( $matches[1] ) ? $matches[1] : '';
+
+			foreach ( $case['expected_contains'] as $needle ) {
+				$this->assertStringContainsString( $needle, $payload, $case['test_condition_name'] . ' / 期待文字列: ' . $needle );
+			}
+			foreach ( $case['expected_not_contains'] as $needle ) {
+				$this->assertStringNotContainsString( $needle, $payload, $case['test_condition_name'] . ' / 含まれてはいけない文字列: ' . $needle );
+			}
+
+			// JSON として読み直した値が期待どおりであること。
+			$this->assertSame( $case['expected_decoded'], json_decode( $payload, true ), $case['test_condition_name'] . ' / JSON として読み直した値' );
+		}
+	}
 }
